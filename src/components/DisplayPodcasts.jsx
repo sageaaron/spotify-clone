@@ -1,51 +1,29 @@
 import Navbar from "./Navbar";
-
-const podcastsData = [
-  {
-    id: 0,
-    name: "Tech Talks Daily",
-    host: "Neil C. Hughes",
-    image: "https://picsum.photos/seed/pod1/200",
-    desc: "Daily tech news and insights",
-  },
-  {
-    id: 1,
-    name: "The Daily",
-    host: "The New York Times",
-    image: "https://picsum.photos/seed/pod2/200",
-    desc: "What's happening in the world today",
-  },
-  {
-    id: 2,
-    name: "Lex Fridman Podcast",
-    host: "Lex Fridman",
-    image: "https://picsum.photos/seed/pod3/200",
-    desc: "Conversations about science and humanity",
-  },
-  {
-    id: 3,
-    name: "How I Built This",
-    host: "Guy Raz",
-    image: "https://picsum.photos/seed/pod4/200",
-    desc: "Stories behind the world's best-known companies",
-  },
-  {
-    id: 4,
-    name: "Darknet Diaries",
-    host: "Jack Rhysider",
-    image: "https://picsum.photos/seed/pod5/200",
-    desc: "True stories from the dark side of the internet",
-  },
-  {
-    id: 5,
-    name: "Crime Junkie",
-    host: "Ashley Flowers",
-    image: "https://picsum.photos/seed/pod6/200",
-    desc: "A weekly true crime podcast",
-  },
-];
+import { useContext } from "react";
+import { PlayerContext } from "../context/PlayerContext";
+import { podcastsData } from "../assets/assets";
 
 const DisplayPodcasts = () => {
+  const { track, playerStatus, audioRef, setTrack, setPlayerStatus } =
+    useContext(PlayerContext);
+
+  const handlePlay = (podcast) => {
+    setTrack({
+      id: `podcast-${podcast.id}`,
+      name: podcast.episode,
+      desc: podcast.name,
+      image: podcast.image,
+      file: podcast.file,
+    });
+    setTimeout(() => {
+      audioRef.current.play();
+      setPlayerStatus(true);
+    }, 0);
+  };
+
+  const isPlaying = (podcast) =>
+    playerStatus && track.id === `podcast-${podcast.id}`;
+
   return (
     <>
       <Navbar />
@@ -55,6 +33,7 @@ const DisplayPodcasts = () => {
           {podcastsData.map((item) => (
             <div
               key={item.id}
+              onClick={() => handlePlay(item)}
               className="min-w-45 p-2 px-3 rounded cursor-pointer hover:bg-[#ffffff26]"
             >
               <img
@@ -62,8 +41,12 @@ const DisplayPodcasts = () => {
                 src={item.image}
                 alt={item.name}
               />
-              <p className="font-bold mt-2 mb-1">{item.name}</p>
-              <p className="text-slate-200 text-sm">{item.host}</p>
+              <p
+                className={`font-bold mt-2 mb-1 ${isPlaying(item) ? "text-green-400" : "text-white"}`}
+              >
+                {item.name}
+              </p>
+              <p className="text-slate-400 text-sm">{item.host}</p>
             </div>
           ))}
         </div>
@@ -75,18 +58,31 @@ const DisplayPodcasts = () => {
           {podcastsData.map((item) => (
             <div
               key={item.id}
-              className="flex items-center gap-4 p-3 rounded hover:bg-[#ffffff26] cursor-pointer"
+              onClick={() => handlePlay(item)}
+              className={`flex items-center gap-4 p-3 rounded cursor-pointer hover:bg-[#ffffff26] ${isPlaying(item) ? "bg-[#ffffff15]" : ""}`}
             >
               <img
-                className="w-16 h-16 rounded"
+                className="w-16 h-16 rounded shrink-0"
                 src={item.image}
                 alt={item.name}
               />
-              <div>
-                <p className="font-bold">{item.name}</p>
+              <div className="flex-1">
+                <p
+                  className={`font-bold ${isPlaying(item) ? "text-green-400" : "text-white"}`}
+                >
+                  {item.episode}
+                </p>
+                <p className="text-slate-300 text-sm font-semibold">
+                  {item.name}
+                </p>
                 <p className="text-slate-400 text-sm">{item.desc}</p>
-                <p className="text-slate-500 text-xs mt-1">{item.host}</p>
+                <p className="text-slate-500 text-xs mt-1">
+                  {item.host} • {item.duration}
+                </p>
               </div>
+              <p className="text-slate-400 text-sm hidden sm:block">
+                {item.duration}
+              </p>
             </div>
           ))}
         </div>
